@@ -3,6 +3,8 @@ package common
 import (
 	"net"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 // GetNodeIP returns the IP address of this instance as a string.
@@ -49,4 +51,24 @@ func CheckIP(ip string, portOnlyOk bool) bool {
 
 	return private
 
+} // LogLevel converts a string to a logrus logging level constant
+func LogLevel(l string) logrus.Level {
+	switch l {
+	case "trace":
+		return logrus.TraceLevel
+	case "debug":
+		return logrus.DebugLevel
+	case "info":
+		return logrus.InfoLevel
+	case "warn":
+		return logrus.WarnLevel
+	case "error":
+		return logrus.ErrorLevel
+	case "fatal":
+		return logrus.FatalLevel
+	case "panic":
+		return logrus.PanicLevel
+	default:
+		return logrus.DebugLevel
+	}
 }
