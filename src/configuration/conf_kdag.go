@@ -70,8 +70,8 @@ type KdagConf struct {
 	Moniker string `mapstructure:"moniker"`
 }
 
-// DefaultBabbleConfig returns the default configuration for a Kdag node
-func DefaultBabbleConfig() *KdagConf {
+// DefaultKdagConfig returns the default configuration for a Kdag node
+func DefaultKdagConfig() *KdagConf {
 	return &KdagConf{
 		BindAddr:        defaultNodeAddr,
 		Heartbeat:       defaultHeartbeat,
