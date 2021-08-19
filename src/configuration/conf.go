@@ -6,7 +6,6 @@ import (
 
 	evm_conf "github.com/Kdag-K/evm/src/config"
 	"github.com/Kdag-K/kdag-hub/src/common"
-
 	kdag_conf "github.com/Kdag-K/kdag/src/config"
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
@@ -18,7 +17,7 @@ var (
 	Global = DefaultConfig()
 )
 
-// Config contains the configuration for MONET node
+// Config contains the configuration for Knode node
 type Config struct {
 
 	// Top level options use an anonymous struct
@@ -31,7 +30,7 @@ type Config struct {
 	Kdag *KdagConf `mapstructure:"kdag"`
 }
 
-// DefaultConfig returns the default configuration for a MONET node
+// DefaultConfig returns the default configuration for a Knode node
 func DefaultConfig() *Config {
 	return &Config{
 		BaseConfig: DefaultBaseConfig(),
@@ -77,7 +76,7 @@ func (c *Config) ToEVMConfig() *evm_conf.Config {
 // as used by the Kdag library. It enforces the values of Store and
 // EnableFastSync to true and false respectively.
 func (c *Config) ToKdagConfig() *kdag_conf.Config {
-	kdagConfig := kdag_conf.NewDefaultConfig()
+	kdagConfig := kdag_conf.NewDefaultConf()
 
 	kdagConfig.DataDir = filepath.Join(c.ConfigDir, KdagDir)
 	kdagConfig.DatabaseDir = filepath.Join(c.DataDir, KdagDB)
