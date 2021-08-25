@@ -95,7 +95,6 @@ func MessageWithType(msgType int, a ...interface{}) (n int, err error) {
 
 	if prefix == "" {
 		n, err = fmt.Println(a...)
-
 	} else {
 		n, err = fmt.Println(append([]interface{}{prefix}, a...))
 	}
