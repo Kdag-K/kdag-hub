@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/Kdag-K/kdag-hub/src/common"
@@ -128,4 +130,67 @@ func CopyFileContents(src, dst string) (err error) {
 	}
 	err = out.Sync()
 	return
+}
+
+// SafeRename renames a folder or file to <name>.~n~ where n is the lowest value
+// where the folder does not already exist. The value of n is capped at 100,
+// which would require the user to manually tidy the parent folder.
+func SafeRename(origDir string) error {
+
+	// no renaming is necessary if the original file/folder doesnt exist
+	if !CheckIfExists(origDir) {
+		return nil
+	}
+
+	const maxloops = 100
+
+	for i := 1; i < 100; i++ {
+		newDir := origDir + ".~" + strconv.Itoa(i) + "~"
+		if CheckIfExists(newDir) {
+			continue
+		}
+		common.DebugMessage("Renaming " + origDir + " to " + newDir)
+		err := os.Rename(origDir, newDir)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return errors.New("you have reached the maximum number of automatic backups. Try removing the .monet.~n~ files")
+}
+
+//DownloadFile downs a file from a URL and writes it to disk
+func DownloadFile(url string, writefile string, interactive bool) error {
+	b, err := getRequest(url)
+	if err != nil {
+		common.ErrorMessage("Error getting "+url, err)
+		return err
+	}
+
+	// Set options for WriteToFile base on 'interactive' flag
+	var options Bits
+	if interactive {
+		options = PromptIfExisting
+	}
+
+	err = WriteToFile(writefile, string(b), options)
+	if err != nil {
+		common.ErrorMessage("Error writing "+writefile, err)
+		return err
+	}
+	return nil
+}
+
+//GetRequest gets a request from a URL
+func getRequest(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	resp.Body.Close()
+	return bytes, nil
 }
