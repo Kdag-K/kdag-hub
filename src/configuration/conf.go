@@ -17,7 +17,8 @@ var (
 	Global = DefaultConfig()
 )
 
-// Config contains the configuration for Knode node
+
+// Config contains the configuration for Knode node.
 type Config struct {
 
 	// Top level options use an anonymous struct
@@ -30,7 +31,7 @@ type Config struct {
 	Kdag *KdagConf `mapstructure:"kdag"`
 }
 
-// DefaultConfig returns the default configuration for a Knode node
+// DefaultConfig returns the default configuration for a Knode node.
 func DefaultConfig() *Config {
 	return &Config{
 		BaseConfig: DefaultBaseConfig(),
@@ -77,8 +78,7 @@ func (c *Config) ToEVMConfig() *evm_conf.Config {
 // EnableFastSync to true and false respectively.
 func (c *Config) ToKdagConfig() *kdag_conf.Config {
 	kdagConfig := kdag_conf.NewDefaultConf()
-
-	kdagConfig.DataDir = filepath.Join(c.ConfigDir, KdagDir)
+  kdagConfig.DataDir = filepath.Join(c.ConfigDir, KdagDir)
 	kdagConfig.DatabaseDir = filepath.Join(c.DataDir, KdagDB)
 	kdagConfig.LogLevel = c.LogLevel()
 	kdagConfig.BindAddr = c.Kdag.BindAddr
