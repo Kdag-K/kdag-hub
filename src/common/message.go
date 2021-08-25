@@ -4,6 +4,9 @@ package common
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"runtime"
 
 	"github.com/fatih/color"
 )
@@ -99,4 +102,18 @@ func MessageWithType(msgType int, a ...interface{}) (n int, err error) {
 	color.Unset()
 
 	return n, err
+}
+
+// ClearScreen clears the CLI screen. Implementation is OS-specific.
+func ClearScreen() {
+	// Attempt to clear cli screen.
+	switch runtime.GOOS {
+	case "windows":
+		cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+		return
+	}
+
+	print("\033[H\033[2J")
 }
