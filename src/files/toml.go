@@ -1,9 +1,9 @@
 package files
-import(
+
+import (
 	"github.com/Kdag-K/kdag-hub/src/common"
 	"github.com/pelletier/go-toml"
 )
-
 
 // LoadToml loads a Toml file and returns a tree object.
 func LoadToml(tomlFile string) (*toml.Tree, error) {

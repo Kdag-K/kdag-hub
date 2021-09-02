@@ -17,7 +17,6 @@ var (
 	Global = DefaultConfig()
 )
 
-
 // Config contains the configuration for Knode node.
 type Config struct {
 
@@ -78,7 +77,7 @@ func (c *Config) ToEVMConfig() *evm_conf.Config {
 // EnableFastSync to true and false respectively.
 func (c *Config) ToKdagConfig() *kdag_conf.Config {
 	kdagConfig := kdag_conf.NewDefaultConf()
-  kdagConfig.DataDir = filepath.Join(c.ConfigDir, KdagDir)
+	kdagConfig.DataDir = filepath.Join(c.ConfigDir, KdagDir)
 	kdagConfig.DatabaseDir = filepath.Join(c.DataDir, KdagDB)
 	kdagConfig.LogLevel = c.LogLevel()
 	kdagConfig.BindAddr = c.Kdag.BindAddr
