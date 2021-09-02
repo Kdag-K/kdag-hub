@@ -18,3 +18,17 @@ type POA struct {
 	Code    string            `json:"code"`
 	Storage map[string]string `json:"storage,omitempty"`
 }
+
+// JSONGenesisFile is the structure that a Genesis file gets parsed into.
+type JSONGenesisFile struct {
+	Alloc      *Alloc `json:"alloc"`
+	Poa        *POA   `json:"poa"`
+	Controller *POA   `json:"controller"`
+}
+
+// MinimalPeerRecord is used where only an Address and Moniker are required.
+// The standard Peer datatypes us PubKeyHex not address.
+type MinimalPeerRecord struct {
+	Address string
+	Moniker string
+}
