@@ -1,5 +1,16 @@
 package genesis
 
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"path/filepath"
+	"strings"
+
+	"github.com/Kdag-K/kdag-hub/src/configuration"
+	"github.com/Kdag-K/kdag-hub/src/crypto"
+)
+
 // AllocRecord is an object that contains information about a pre-funded acount.
 type AllocRecord struct {
 	Balance string `json:"balance"`
@@ -31,4 +42,42 @@ type JSONGenesisFile struct {
 type MinimalPeerRecord struct {
 	Address string
 	Moniker string
+}
+
+// buildAlloc builds the alloc structure of the genesis file
+func buildAlloc(accountsDir string) (Alloc, error) {
+	var alloc = make(Alloc)
+
+	tfiles, err := ioutil.ReadDir(accountsDir)
+	if err != nil {
+		return alloc, err
+	}
+
+	for _, f := range tfiles {
+		if filepath.Ext(f.Name()) != ".json" {
+			continue
+		}
+
+		path := filepath.Join(accountsDir, f.Name())
+
+		// Read key from file.
+		keyjson, err := ioutil.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to read the keyfile at '%s': %v", path, err)
+		}
+
+		k := new(crypto.EncryptedKeyJSONKnode)
+		if err := json.Unmarshal(keyjson, k); err != nil {
+			return nil, err
+		}
+
+		moniker := strings.TrimSuffix(f.Name(), ".json")
+		balance := configuration.DefaultAccountBalance
+		addr := k.Address
+
+		rec := AllocRecord{Moniker: moniker, Balance: balance}
+		alloc[addr] = &rec
+	}
+
+	return alloc, nil
 }
