@@ -1,6 +1,8 @@
 package crypto
 
 import (
+	"crypto/ecdsa"
+	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 
@@ -46,4 +48,15 @@ func EncryptKey(key *keystore.Key, auth string, scryptN, scryptP int) ([]byte, e
 		ethereumVersion,
 	}
 	return json.Marshal(encryptedKeyJSONKnode)
+}
+
+// WrapKey creates the keyfile object with a random UUID. It would be preferable
+// to create the key manually, rather then calling this function, but we cannot
+// use pborman/uuid directly because it is vendored in go-ethereum. That package
+// defines the type of keystore.Key.Id.
+func WrapKey(privateKey *ecdsa.PrivateKey) *keystore.Key {
+	key := keystore.NewKeyForDirectICAP(rand.Reader)
+	key.Address = crypto.PubkeyToAddress(privateKey.PublicKey)
+	key.PrivateKey = privateKey
+	return key
 }
