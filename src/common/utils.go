@@ -1,6 +1,8 @@
 package common
 
 import (
+	"encoding/json"
+	"fmt"
 	"net"
 	"strings"
 
@@ -71,4 +73,15 @@ func LogLevel(l string) logrus.Level {
 	default:
 		return logrus.DebugLevel
 	}
+}
+
+// MustPrintJSON prints the JSON encoding of the given object and
+// exits the program with an error message when the marshaling fails.
+func MustPrintJSON(jsonObject interface{}) error {
+	str, err := json.MarshalIndent(jsonObject, "", "  ")
+	if err != nil {
+		return fmt.Errorf("Failed to marshal JSON object: %v", err)
+	}
+	fmt.Println(string(str))
+	return nil
 }
