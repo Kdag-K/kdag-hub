@@ -1,6 +1,7 @@
 package crypto
 
 import (
+	"crypto/ecdsa"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -25,7 +26,7 @@ type outputInspect struct {
 	PrivateKey string
 }
 
-// InspectKey inspects an encrypted keyfile
+// InspectKey inspects an encrypted keyfile.
 func InspectKey(keyfilepath string, PasswordFile string, showPrivate bool, outputJSON bool) error {
 
 	// Read key from file.
@@ -67,7 +68,7 @@ func InspectKey(keyfilepath string, PasswordFile string, showPrivate bool, outpu
 
 	return nil
 }
-// InspectKeyByMoniker is a wrapper around InspectKey to add moniker support
+// InspectKeyByMoniker is a wrapper around InspectKey to add moniker support.
 func InspectKeyByMoniker(keystore string, moniker string, PasswordFile string, showPrivate bool, outputJSON bool) error {
 	fp := filepath.Join(keystore, moniker+".json")
 	
@@ -78,8 +79,7 @@ func InspectKeyByMoniker(keystore string, moniker string, PasswordFile string, s
 	return InspectKey(fp, PasswordFile, showPrivate, outputJSON)
 }
 
-// GetPrivateKeyString decrypts a keystore and returns the private key as a
-// string
+// GetPrivateKeyString decrypts a keystore and returns the private key as a string.
 func GetPrivateKeyString(keyfilePath string, passwordFile string) (string, error) {
 	
 	privKey, err := crypto.GetPrivateKey(keyfilePath, passwordFile)
@@ -88,4 +88,28 @@ func GetPrivateKeyString(keyfilePath string, passwordFile string) (string, error
 	}
 	
 	return hex.EncodeToString(eth_crypto.FromECDSA(privKey)), nil
+}
+
+// GetPrivateKey decrypts a keystore and returns the private key.
+func GetPrivateKey(keyfilepath string, PasswordFile string) (*ecdsa.PrivateKey, error) {
+	
+	// Read key from file.
+	keyjson, err := ioutil.ReadFile(keyfilepath)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read the keyfile at '%s': %v", keyfilepath, err)
+	}
+	
+	// Decrypt key with passphrase.
+	passphrase, err := crypto.GetPassphrase(PasswordFile, false)
+	if err != nil {
+		return nil, err
+	}
+	
+	key, err := keystore.DecryptKey(keyjson, passphrase)
+	if err != nil {
+		return nil, fmt.Errorf("Error decrypting key: %v", err)
+	}
+	
+	return key.PrivateKey, nil
+	
 }
