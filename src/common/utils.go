@@ -4,10 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"regexp"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 )
+
+// MonikerRegexp defines the set of characters that monikers can be composed of.
+var MonikerRegexp = regexp.MustCompile("^[a-zA-Z0-9_]*$")
 
 // GetNodeIP returns the IP address of this instance as a string.
 func GetNodeIP() string {
@@ -84,4 +88,9 @@ func MustPrintJSON(jsonObject interface{}) error {
 	}
 	fmt.Println(string(str))
 	return nil
+}
+
+// CheckMoniker verifies if the moniker matches the MonikerRegexp.
+func CheckMoniker(moniker string) bool {
+	return MonikerRegexp.MatchString(moniker)
 }
