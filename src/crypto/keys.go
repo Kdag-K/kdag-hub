@@ -6,10 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	
 	"github.com/Kdag-K/evm/src/crypto"
 	"github.com/Kdag-K/kdag-hub/src/common"
+	"github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/src/files"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	eth_crypto "github.com/ethereum/go-ethereum/crypto"
@@ -112,4 +114,88 @@ func GetPrivateKey(keyfilepath string, PasswordFile string) (*ecdsa.PrivateKey, 
 	
 	return key.PrivateKey, nil
 	
+}
+
+/*
+GenerateKeyfile generates an Ethereum keyfile and writes it.
+
+keyfilepath: path to write the new keyfile to.
+passwordFile: plain text file containing the passphrase to use for the
+              keyfile.
+
+privateKeyfile: the path to an unencrypted private key. If specified, this
+                function does not generate a new keyfile, it instead
+                generates a keyfile from the unencrypted private key.
+
+outputJSON: controls whether the output to stdio is in JSON format or not.
+            The function returns a key object which can be used to retrieve
+            public or private keys or the address.
+*/
+func GenerateKeyfile(keyfilepath, passwordFile, privateKeyfile string, outputJSON bool) (*keystore.Key, error) {
+	const dirPerm = 0700
+	const filePerm = 0600
+	if keyfilepath == "" {
+		keyfilepath = configuration.DefaultKeyfile
+	}
+	if _, err := os.Stat(keyfilepath); err == nil {
+		return nil, fmt.Errorf("Keyfile already exists at %s", keyfilepath)
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("Error checking if keyfile exists: %v", err)
+	}
+	
+	var privateKey *ecdsa.PrivateKey
+	var err error
+	
+	if file := privateKeyfile; file != "" {
+		// Load private key from file.
+		common.DebugMessage("Loading Private Key: ", file)
+		privateKey, err = eth_crypto.LoadECDSA(file)
+		if err != nil {
+			return nil, fmt.Errorf("Can't load private key: %v", err)
+		}
+	} else {
+		// If not loaded, generate random.
+		privateKey, err = eth_crypto.GenerateKey()
+		if err != nil {
+			return nil, fmt.Errorf("Failed to generate random private key: %v", err)
+		}
+	}
+	
+	// Create the keyfile object with a random UUID
+	key := WrapKey(privateKey)
+	
+	// Encrypt key with passphrase.
+	passphrase, err := crypto.GetPassphrase(passwordFile, true)
+	if err != nil {
+		return nil, err
+	}
+	
+	keyjson, err := EncryptKey(key, passphrase, keystore.StandardScryptN, keystore.StandardScryptP)
+	if err != nil {
+		return nil, fmt.Errorf("Error encrypting key: %v", err)
+	}
+	
+	// Load private key from file.
+	common.DebugMessage("Destination: ", keyfilepath)
+	
+	// Store the file to disk.
+	if err := os.MkdirAll(filepath.Dir(keyfilepath), dirPerm); err != nil {
+		return nil, fmt.Errorf("Could not create directory %s: %v", filepath.Dir(keyfilepath), err)
+	}
+	if err := ioutil.WriteFile(keyfilepath, keyjson, filePerm); err != nil {
+		return nil, fmt.Errorf("Failed to write keyfile to %s: %v", keyfilepath, err)
+	}
+	
+	// Output some information.
+	out := outputGenerate{
+		Address: key.Address.Hex(),
+	}
+	
+	if outputJSON {
+		common.MustPrintJSON(out)
+	} else {
+		fmt.Println("Address:", out.Address)
+	}
+	
+	return key, nil
 }
