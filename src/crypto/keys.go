@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	
 	"github.com/Kdag-K/evm/src/crypto"
 	"github.com/Kdag-K/kdag-hub/src/common"
@@ -195,6 +196,40 @@ func GenerateKeyfile(keyfilepath, passwordFile, privateKeyfile string, outputJSO
 		common.MustPrintJSON(out)
 	} else {
 		fmt.Println("Address:", out.Address)
+	}
+	
+	return key, nil
+}
+
+// NewKeyfileFull is a wrapper to GenerateKeyfile adding moniker support.
+func NewKeyfileFull(keystore, moniker, passwordFile string, privateKeyfile string, outputJSON bool) (*keystore.Key, error) {
+	
+	if strings.TrimSpace(moniker) == "" {
+		return nil, errors.New("moniker is not set")
+	}
+	
+	if !common.CheckMoniker(moniker) {
+		return nil, errors.New("moniker can only contain characters (uppercase or lowercase), underscores or numbers")
+	}
+	
+	dirlist := []string{keystore}
+	
+	err := files.CreateDirsIfNotExists(dirlist)
+	if err != nil {
+		common.ErrorMessage("cannot create keystore directory")
+		return nil, err
+	}
+	
+	keyfilepath := filepath.Join(keystore, moniker+".json")
+	
+	if files.CheckIfExists(keyfilepath) {
+		return nil, errors.New("key for node " + moniker + " already exists")
+	}
+	
+	key, err := GenerateKeyfile(keyfilepath, passwordFile, privateKeyfile, outputJSON)
+	
+	if err != nil {
+		return key, err
 	}
 	
 	return key, nil
