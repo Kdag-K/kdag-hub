@@ -2,11 +2,14 @@ package crypto
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/ioutil"
-
+	"path/filepath"
+	
 	"github.com/Kdag-K/evm/src/crypto"
 	"github.com/Kdag-K/kdag-hub/src/common"
+	"github.com/Kdag-K/kdag-hub/src/files"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	eth_crypto "github.com/ethereum/go-ethereum/crypto"
 )
@@ -63,4 +66,26 @@ func InspectKey(keyfilepath string, PasswordFile string, showPrivate bool, outpu
 	}
 
 	return nil
+}
+// InspectKeyByMoniker is a wrapper around InspectKey to add moniker support
+func InspectKeyByMoniker(keystore string, moniker string, PasswordFile string, showPrivate bool, outputJSON bool) error {
+	fp := filepath.Join(keystore, moniker+".json")
+	
+	if !files.CheckIfExists(fp) {
+		return errors.New("cannot find keyfile for that moniker")
+	}
+	
+	return InspectKey(fp, PasswordFile, showPrivate, outputJSON)
+}
+
+// GetPrivateKeyString decrypts a keystore and returns the private key as a
+// string
+func GetPrivateKeyString(keyfilePath string, passwordFile string) (string, error) {
+	
+	privKey, err := crypto.GetPrivateKey(keyfilePath, passwordFile)
+	if err != nil {
+		return "", err
+	}
+	
+	return hex.EncodeToString(eth_crypto.FromECDSA(privKey)), nil
 }
