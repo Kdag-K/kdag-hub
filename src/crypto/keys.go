@@ -234,3 +234,11 @@ func NewKeyfileFull(keystore, moniker, passwordFile string, privateKeyfile strin
 	
 	return key, nil
 }
+
+// NewKeyfile is a wrapper to NewKeyfileFull and thus GenerateKeyfile. It does
+// not support setting a private key. Additionally it does not support
+// outputting to JSON format - if required, that can be achieved calling
+// GenerateKeyfile directly.
+func NewKeyfile(keystore, moniker, passwordFile string) (*keystore.Key, error) {
+	return NewKeyfileFull(keystore, moniker, passwordFile, "", false)
+}
