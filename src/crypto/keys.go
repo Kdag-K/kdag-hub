@@ -242,3 +242,66 @@ func NewKeyfileFull(keystore, moniker, passwordFile string, privateKeyfile strin
 func NewKeyfile(keystore, moniker, passwordFile string) (*keystore.Key, error) {
 	return NewKeyfileFull(keystore, moniker, passwordFile, "", false)
 }
+
+// UpdateKey changes the passphrase on an encrypted keyfile
+func UpdateKey(keyfilepath string, PasswordFile string, newPasswordFile string) error {
+	// Read key from file.
+	keyjson, err := ioutil.ReadFile(keyfilepath)
+	if err != nil {
+		return fmt.Errorf("Failed to read the keyfile at '%s': %v", keyfilepath, err)
+	}
+	
+	// Decrypt key with passphrase.
+	passphrase, err := crypto.GetPassphrase(PasswordFile, false)
+	if err != nil {
+		return err
+	}
+	
+	key, err := keystore.DecryptKey(keyjson, passphrase)
+	if err != nil {
+		return fmt.Errorf("Error decrypting key: %v", err)
+	}
+	
+	// Get a new passphrase.
+	fmt.Println("Please provide a new passphrase")
+	var newPhrase string
+	if newPasswordFile != "" {
+		content, err := ioutil.ReadFile(newPasswordFile)
+		if err != nil {
+			return fmt.Errorf("Failed to read new passphrase file '%s': %v", newPasswordFile, err)
+		}
+		newPhrase = strings.TrimRight(string(content), "\r\n")
+	} else {
+		newPhrase, err = crypto.PromptPassphrase(true)
+		if err != nil {
+			return err
+		}
+	}
+	
+	// Encrypt the key with the new passphrase.
+	newJSON, err := EncryptKey(key, newPhrase, keystore.StandardScryptN, keystore.StandardScryptP)
+	if err != nil {
+		return fmt.Errorf("Error encrypting with new passphrase: %v", err)
+	}
+	
+	// Then write the new keyfile in place of the old one.
+	if err := ioutil.WriteFile(keyfilepath, newJSON, 600); err != nil {
+		return fmt.Errorf("Error writing new keyfile to disk: %v", err)
+	}
+	
+	// Don't print anything.  Just return successfully,
+	// producing a positive exit code.
+	return nil
+	
+}
+
+// UpdateKeyByMoniker wraps UpdateKey adding moniker support
+func UpdateKeyByMoniker(keystore, moniker string, passwordFile string, newPasswordFile string) error {
+	fp := filepath.Join(keystore, moniker+".json")
+	
+	if !files.CheckIfExists(fp) {
+		return errors.New("cannot find keyfile for that moniker")
+	}
+	
+	return UpdateKey(fp, passwordFile, newPasswordFile)
+}
