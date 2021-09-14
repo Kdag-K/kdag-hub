@@ -43,7 +43,7 @@ func init() {
 	// Keys subcommands
 	KeysCmd.AddCommand(
 		newInspectCmd(),
-		// newUpdateCmd(),
+		newUpdateCmd(),
 		newNewCmd(),
 		newListCmd(),
 	)
