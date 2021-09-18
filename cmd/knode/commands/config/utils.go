@@ -1,4 +1,5 @@
 package config
+
 import (
 	"fmt"
 	"path/filepath"
@@ -8,9 +9,9 @@ import (
 	"github.com/Kdag-K/kdag-hub/src/files"
 )
 
-// CreateMonetConfigFolders creates the standard directory layout for a monet
+// CreateKnodeConfigFolders creates the standard directory layout for a monet
 // configuration folder
-func CreateMonetConfigFolders(configDir string) error {
+func CreateKnodeConfigFolders(configDir string) error {
 	return files.CreateDirsIfNotExists([]string{
 		configDir,
 		filepath.Join(configDir, configuration.KdagDir),
@@ -31,7 +32,7 @@ func ShowIPWarnings() {
 	}
 	
 	if advertise != "" && common.CheckIP(advertise, false) {
-		common.MessageWithType(common.MsgWarning, fmt.Sprintf("Kdag.advertise address in knode.toml may be internal: %s \n", listen))
+		common.MessageWithType(common.MsgWarning, fmt.Sprintf("kdag.advertise address in knode.toml may be internal: %s \n", listen))
 	} else if common.CheckIP(listen, false) {
 		common.MessageWithType(
 			common.MsgWarning,
