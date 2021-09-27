@@ -39,7 +39,7 @@ func pullConfig(cmd *cobra.Command, args []string) error {
 	// Create Directories if they don't exist
 	CreateKnodeConfigFolders(_configDir)
 	
-	// Copy the key to babble directory with appropriate permissions
+	// Copy the key to kdag directory with appropriate permissions
 	err = keystore.DumpPrivKey(
 		filepath.Join(_configDir, configuration.KdagDir),
 		privateKey)
