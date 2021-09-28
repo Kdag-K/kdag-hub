@@ -21,7 +21,7 @@ type encryptedKeyJSONV3 struct {
 }
 
 // EncryptedKeyJSONKnode is an extension of a regular Ethereum keyfile with an
-// added public key. It makes our lives easier when working with Babble. We
+// added public key. It makes our lives easier when working with kdag. We
 // could change the Version number, but then other non-Knode tools, would not be
 // able to decrypt keys
 type EncryptedKeyJSONKnode struct {
