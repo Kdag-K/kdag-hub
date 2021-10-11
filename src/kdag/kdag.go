@@ -25,6 +25,41 @@ func NewInmemKdag(config *kdagconf.Config, logger *logrus.Entry) *InmemKdag {
 		logger: logger,
 	}
 }
+/*******************************************************************************
+IMPLEMENT CONSENSUS INTERFACE
+*******************************************************************************/
+
+// Init instantiates a Kdag inmemory node.
+//
+// XXX - Normally, the Kdag object takes a reference to the InmemProxy via its
+// config. Here, we need the InmemProxy to have a reference to the Kdag object
+// as well; a sort of circular reference, which is quite ugly. This is necessary
+// because the InmemProxy calls the Kdag object directly to retrieve the list
+// of validators. We will change this when Blocks are modified to contain the
+// validator-set. cf. work on Kdag merkleize branch.
+func (ik *InmemKdag) Init(state *state.State, service *service.Service) error {
+	ik.ethState = state
+	ik.ethService = service
+	
+	kdag := kdag.NewKdag(ik.config)
+	
+	inmemProxy := NewInmemProxy(state,
+		service,
+		kdag,
+		service.GetSubmitCh(),
+		ik.logger)
+	
+	ik.config.Proxy = inmemProxy
+	
+	err := kdag.Init()
+	if err != nil {
+		return err
+	}
+	
+	ik.kdag = kdag
+	
+	return nil
+}
 
 // Run starts the Kdag node
 func (ik *InmemKdag) Run() error {
