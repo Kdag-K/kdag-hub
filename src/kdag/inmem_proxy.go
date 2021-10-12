@@ -71,3 +71,40 @@ func (p *InmemProxy) getCoinbase(block hashgraph.Block) (ethCommon.Address, erro
 
 	return coinbaseAddress, nil
 }
+// processInternalTransactions decides if InternalTransactions should be
+// accepted. For PEER_ADD transactions, it checks if the peer is authorised in
+// the POA smart-contract. All PEER_REMOVE transactions are accepted.
+func (p *InmemProxy) processInternalTransactions(internalTransactions []hashgraph.InternalTransaction) []hashgraph.InternalTransactionReceipt {
+	receipts := []hashgraph.InternalTransactionReceipt{}
+	
+	for _, tx := range internalTransactions {
+		switch tx.Body.Type {
+		case hashgraph.PEER_ADD:
+			pk, err := crypto.UnmarshalPubkey(tx.Body.Peer.PubKeyBytes())
+			if err != nil {
+				p.logger.Warningf("couldn't unmarshal pubkey bytes: %v", err)
+			}
+			
+			addr := crypto.PubkeyToAddress(*pk)
+			
+			ok, err := p.state.CheckAuthorised(addr)
+			
+			if err != nil {
+				p.logger.WithError(err).Error("Error in checkAuthorised")
+				receipts = append(receipts, tx.AsRefused())
+			} else {
+				if ok {
+					p.logger.WithField("addr", addr.String()).Info("Accepted peer")
+					receipts = append(receipts, tx.AsAccepted())
+				} else {
+					p.logger.WithField("addr", addr.String()).Info("Rejected peer")
+					receipts = append(receipts, tx.AsRefused())
+				}
+			}
+		case hashgraph.PEER_REMOVE:
+			receipts = append(receipts, tx.AsAccepted())
+		}
+	}
+	
+	return receipts
+}
