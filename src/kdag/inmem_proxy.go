@@ -108,3 +108,15 @@ func (p *InmemProxy) processInternalTransactions(internalTransactions []hashgrap
 	
 	return receipts
 }
+
+
+//TODO - Implement these two functions
+//GetSnapshot will generate a snapshot
+func (p *InmemProxy) GetSnapshot(blockIndex int) ([]byte, error) {
+	return []byte{}, nil
+}
+
+//Restore will restore a snapshot
+func (p *InmemProxy) Restore(snapshot []byte) error {
+	return nil
+}
