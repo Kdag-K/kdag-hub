@@ -109,6 +109,52 @@ func (p *InmemProxy) processInternalTransactions(internalTransactions []hashgrap
 	return receipts
 }
 
+// processEvictions compares the current validator-set to the whitelist and
+// creates InternalTransactionReceipts to evict any current validator which is
+// not in the whitelist.
+func (p *InmemProxy) processEvictions(block hashgraph.Block) []hashgraph.InternalTransactionReceipt {
+	receipts := []hashgraph.InternalTransactionReceipt{}
+	
+	if p.kdag != nil {
+		babbleValidators, err := p.kdag.Node.GetValidatorSet(block.RoundReceived())
+		if err != nil {
+			p.logger.WithError(err).Error("Error GetValidatorSet")
+			return receipts
+		}
+		
+		for _, val := range babbleValidators {
+			pk, err := crypto.UnmarshalPubkey(val.PubKeyBytes())
+			if err != nil {
+				p.logger.Warningf("couldn't unmarshal pubkey bytes: %v", err)
+				continue
+			}
+			
+			addr := crypto.PubkeyToAddress(*pk)
+			
+			ok, err := p.state.CheckAuthorised(addr)
+			
+			if err != nil {
+				p.logger.WithError(err).Error("Error in checkAuthorised")
+			} else {
+				if !ok {
+					p.logger.WithField("addr", addr.String()).Info("Ejected peer")
+					receipts = append(receipts,
+						hashgraph.InternalTransactionReceipt{
+							InternalTransaction: hashgraph.InternalTransaction{
+								Body: hashgraph.InternalTransactionBody{
+									Type: hashgraph.PEER_REMOVE,
+									Peer: *val,
+								},
+							},
+							Accepted: true,
+						})
+				}
+			}
+		}
+	}
+	
+	return receipts
+}
 
 //TODO - Implement these two functions
 //GetSnapshot will generate a snapshot
