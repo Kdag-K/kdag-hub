@@ -6,6 +6,7 @@ import (
 	"github.com/Kdag-K/kdag/src/crypto/keys"
 	"github.com/Kdag-K/kdag/src/hashgraph"
 	"github.com/Kdag-K/kdag/src/kdag"
+	"github.com/Kdag-K/kdag/src/proxy"
 	ethCommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/sirupsen/logrus"
@@ -155,7 +156,51 @@ func (p *InmemProxy) processEvictions(block hashgraph.Block) []hashgraph.Interna
 	
 	return receipts
 }
-
+// CommitBlock applies the block's transactions to the state and commits. All
+// transaction fees are sent to the coinbase address, which is computed from the
+// block and the current validator-set. It also checks the block's internal
+// transactions against the POA smart-contract to verify if joining peers are
+// authorised to become validators in Babble. It returns the resulting
+// state-hash and internal transaction receips.
+func (p *InmemProxy) CommitBlock(block hashgraph.Block) (proxy.CommitResponse, error) {
+	
+	coinbaseAddress, err := p.getCoinbase(block)
+	if err != nil {
+		return proxy.CommitResponse{}, err
+	}
+	
+	p.logger.WithFields(logrus.Fields{
+		"coinbase": coinbaseAddress.String(),
+		"block":    block.Index(),
+	}).Info("Commit")
+	
+	blockHashBytes, err := block.Hash()
+	blockHash := ethCommon.BytesToHash(blockHashBytes)
+	
+	for i, tx := range block.Transactions() {
+		if err := p.state.ApplyTransaction(tx, i, blockHash, coinbaseAddress); err != nil {
+			p.logger.WithError(err).Errorf("Failed to apply tx %d of %d", i+1, len(block.Transactions()))
+		}
+	}
+	
+	hash, err := p.state.Commit()
+	if err != nil {
+		return proxy.CommitResponse{}, err
+	}
+	
+	internalTransactionReceipts := p.processInternalTransactions(block.InternalTransactions())
+	
+	evictionReceipts := p.processEvictions(block)
+	
+	receipts := append(internalTransactionReceipts, evictionReceipts...)
+	
+	res := proxy.CommitResponse{
+		StateHash:                   hash.Bytes(),
+		InternalTransactionReceipts: receipts,
+	}
+	
+	return res, nil
+}
 //TODO - Implement these two functions
 //GetSnapshot will generate a snapshot
 func (p *InmemProxy) GetSnapshot(blockIndex int) ([]byte, error) {
