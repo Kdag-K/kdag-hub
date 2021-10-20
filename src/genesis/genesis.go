@@ -85,7 +85,7 @@ func buildAlloc(accountsDir string) (Alloc, error) {
 	return alloc, nil
 }
 
-// GenerateGenesisJSON uses a precompiled POA contract
+// GenerateGenesisJSON uses a precompiled POA contract.
 func GenerateGenesisJSON(outDir, keystore string, peers []*peers.Peer, alloc *Alloc, contractAddress string, controllerAddress string) error {
 	
 	var genesis JSONGenesisFile
