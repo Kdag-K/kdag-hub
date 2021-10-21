@@ -6,9 +6,12 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
-
+	
+	"github.com/Kdag-K/kdag-hub/src/common"
 	"github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/src/crypto"
+	"github.com/Kdag-K/kdag-hub/src/files"
+	"github.com/Kdag-K/kdag/src/peers"
 )
 
 // AllocRecord is an object that contains information about a pre-funded acount.
@@ -80,4 +83,56 @@ func buildAlloc(accountsDir string) (Alloc, error) {
 	}
 
 	return alloc, nil
+}
+
+// GenerateGenesisJSON uses a precompiled POA contract.
+func GenerateGenesisJSON(outDir, keystore string, peers []*peers.Peer, alloc *Alloc, contractAddress string, controllerAddress string) error {
+	
+	var genesis JSONGenesisFile
+	var miniPeers []*MinimalPeerRecord
+	
+	for _, peer := range peers {
+		addr, err := crypto.PublicKeyHexToAddressHex(peer.PubKeyHex)
+		if err != nil {
+			return err
+		}
+		miniPeers = append(miniPeers, &MinimalPeerRecord{Address: addr, Moniker: peer.Moniker})
+	}
+	
+	storageJSON, err := GetStorage(miniPeers)
+	if err != nil {
+		return err
+	}
+	
+	genesispoa := POA{Code: StandardPOAContractByteCode,
+		Address: controllerAddress,
+		Abi:     StandardPOAContractABI,
+		Storage: storageJSON,
+	}
+	
+	//TODO set genesiscontroller
+	
+	genesis.Poa = &genesispoa
+	//	genesis.Controller = &genesiscontroller
+	
+	if alloc == nil {
+		alloctmp, err := buildAlloc(keystore)
+		if err != nil {
+			return err
+		}
+		alloc = &alloctmp
+	}
+	
+	genesis.Alloc = alloc
+	
+	genesisjson, err := json.MarshalIndent(genesis, "", "\t")
+	if err != nil {
+		return err
+	}
+	
+	common.DebugMessage("Write Genesis.json")
+	jsonFileName := filepath.Join(outDir, configuration.GenesisJSON)
+	files.WriteToFile(jsonFileName, string(genesisjson), files.OverwriteSilently)
+	
+	return nil
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/src/files"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	eth_crypto "github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -304,4 +305,17 @@ func UpdateKeyByMoniker(keystore, moniker string, passwordFile string, newPasswo
 	}
 	
 	return UpdateKey(fp, passwordFile, newPasswordFile)
+}
+
+// PublicKeyHexToAddressHex takes a Hex string public key and returns a hex
+// string Ethereum style address.
+func PublicKeyHexToAddressHex(publicKey string) (string, error) {
+	pubBytes, err := hex.DecodeString(publicKey)
+	if err != nil {
+		return "", err
+	}
+	
+	pubKeyHash := eth_crypto.Keccak256(pubBytes[1:])[12:]
+	
+	return ethcommon.BytesToAddress(pubKeyHash).Hex(), nil
 }
