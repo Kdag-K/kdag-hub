@@ -11,7 +11,7 @@ import (
 var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "show version info",
-	Long: `Giverny Version information
+	Long: `Dogye Version information
 	
 The version command outputs the version number for Knode, EVM-Lite, Kdag and
 Geth.
