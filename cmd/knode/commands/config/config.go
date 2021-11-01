@@ -30,7 +30,7 @@ Manage Knode configuration.
 * config pull -  fetches the configuration from a running node. This is used to
                  join an existing network.
 
-For more complex scenarios, please refer to 'giverny', which is a specialised
+For more complex scenarios, please refer to 'Dogye', which is a specialised
 Knode configuration tool.
 `,
 	TraverseChildren: true,

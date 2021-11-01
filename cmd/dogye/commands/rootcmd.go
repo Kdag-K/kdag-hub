@@ -17,15 +17,14 @@ var RootCmd = &cobra.Command{
 	Short: "Dogye",
 	Long: `Dogye
 	
-Dogye is the swiss army knife of advanced tools for the Monet Hub. For most users,
-you should not need to use this command. The inbuild commands in monetd will suffice for
+Dogye is the swiss army knife of advanced tools for the Knode Hub. For most users,
+you should not need to use this command. The inbuild commands in Knode will suffice for
 most use cases.`,
 }
 
 func init() {
-	
 	RootCmd.AddCommand(
-		// keys.KeysCmd,
+		 keys.KeysCmd,
 		// network.NetworkCmd,
 		// transactions.TransCmd,
 		// parse.ParseCmd,
