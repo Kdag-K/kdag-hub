@@ -117,13 +117,13 @@ func (p *InmemProxy) processEvictions(block hashgraph.Block) []hashgraph.Interna
 	receipts := []hashgraph.InternalTransactionReceipt{}
 	
 	if p.kdag != nil {
-		babbleValidators, err := p.kdag.Node.GetValidatorSet(block.RoundReceived())
+		kdagValidators, err := p.kdag.Node.GetValidatorSet(block.RoundReceived())
 		if err != nil {
 			p.logger.WithError(err).Error("Error GetValidatorSet")
 			return receipts
 		}
 		
-		for _, val := range babbleValidators {
+		for _, val := range kdagValidators {
 			pk, err := crypto.UnmarshalPubkey(val.PubKeyBytes())
 			if err != nil {
 				p.logger.Warningf("couldn't unmarshal pubkey bytes: %v", err)
@@ -160,7 +160,7 @@ func (p *InmemProxy) processEvictions(block hashgraph.Block) []hashgraph.Interna
 // transaction fees are sent to the coinbase address, which is computed from the
 // block and the current validator-set. It also checks the block's internal
 // transactions against the POA smart-contract to verify if joining peers are
-// authorised to become validators in Babble. It returns the resulting
+// authorised to become validators in kdag. It returns the resulting
 // state-hash and internal transaction receips.
 func (p *InmemProxy) CommitBlock(block hashgraph.Block) (proxy.CommitResponse, error) {
 	
