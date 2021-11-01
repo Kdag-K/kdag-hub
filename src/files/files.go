@@ -156,7 +156,7 @@ func SafeRename(origDir string) error {
 		}
 		return nil
 	}
-	return errors.New("you have reached the maximum number of automatic backups. Try removing the .monet.~n~ files")
+	return errors.New("you have reached the maximum number of automatic backups. Try removing the .knode.~n~ files")
 }
 
 //DownloadFile downs a file from a URL and writes it to disk

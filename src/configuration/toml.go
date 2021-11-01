@@ -63,15 +63,15 @@ api-listen = "{{.APIAddr}}"
 
 // GlobalTOML converts the global Config object into a TOML string
 func GlobalTOML() (string, error) {
-	configTmpl, err := template.New("monetd.toml").Parse(configTOML)
+	configTmpl, err := template.New("knode.toml").Parse(configTOML)
 	if err != nil {
-		return "", fmt.Errorf("Error parsing monetd.toml template: %v", err)
+		return "", fmt.Errorf("Error parsing knode.toml template: %v", err)
 	}
 	
 	var buf bytes.Buffer
 	err = configTmpl.Execute(&buf, Global)
 	if err != nil {
-		return "", fmt.Errorf("Error executing monetd.toml template: %v", err)
+		return "", fmt.Errorf("Error executing knode.toml template: %v", err)
 	}
 	
 	return buf.String(), nil

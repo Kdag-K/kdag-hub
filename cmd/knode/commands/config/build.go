@@ -27,7 +27,7 @@ func addBuildFlags(cmd *cobra.Command) {
 
 
 // dumpPeers takes a list of peers and dumps it into peers.json and
-// peers.genesis.json in the babble directory
+// peers.genesis.json in the kdag directory
 func dumpPeers(configDir string, peers []*peers.Peer) error {
 	peersJSONOut, err := json.MarshalIndent(peers, "", "\t")
 	if err != nil {
@@ -68,7 +68,7 @@ func buildConfig(cmd *cobra.Command, args []string) error {
 	// Create Directories if they don't exist
 	CreateKnodeConfigFolders(_configDir)
 	
-	// Copy the key to babble directory with appropriate permissions
+	// Copy the key to kdag directory with appropriate permissions
 	err = keystore.DumpPrivKey(
 		filepath.Join(_configDir, configuration.KdagDir),
 		privateKey)
