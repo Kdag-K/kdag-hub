@@ -9,7 +9,7 @@ import (
 	"github.com/Kdag-K/kdag-hub/src/files"
 )
 
-// CreateKnodeConfigFolders creates the standard directory layout for a monet
+// CreateKnodeConfigFolders creates the standard directory layout for a knode
 // configuration folder
 func CreateKnodeConfigFolders(configDir string) error {
 	return files.CreateDirsIfNotExists([]string{
