@@ -1,6 +1,11 @@
 package transactions
 
-import "math/big"
+import (
+	"math/big"
+	
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
 
 type soloAccount struct {
 	Moniker      string
@@ -24,3 +29,15 @@ var accounts string
 var outputfile = "trans.json"
 var maxTransValue = 10
 var roundRobin = false
+
+
+func addSoloFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVar(&accounts, "accounts", accounts, "comma separated account list")
+	cmd.Flags().StringVar(&outputfile, "output", outputfile, "output file")
+	
+	cmd.Flags().BoolVar(&roundRobin, "round-robin", roundRobin, "set sender accounts round robin")
+	
+	cmd.Flags().IntVar(&maxTransValue, "max-trans-value", maxTransValue, "maximum transaction value")
+	
+	viper.BindPFlags(cmd.Flags())
+}
