@@ -32,12 +32,15 @@ var roundRobin = false
 
 
 func addSoloFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVar(&faucet, "faucet", faucet, "faucet account moniker")
 	cmd.Flags().StringVar(&accounts, "accounts", accounts, "comma separated account list")
 	cmd.Flags().StringVar(&outputfile, "output", outputfile, "output file")
 	
 	cmd.Flags().BoolVar(&roundRobin, "round-robin", roundRobin, "set sender accounts round robin")
 	
+	cmd.Flags().IntVar(&totalTransactions, "count", totalTransactions, "number of tranactions to solo")
+	cmd.Flags().IntVar(&surplusCredit, "surplus", surplusCredit, "additional credit to allocate each account from the faucet above the bare minimum")
 	cmd.Flags().IntVar(&maxTransValue, "max-trans-value", maxTransValue, "maximum transaction value")
-	
+
 	viper.BindPFlags(cmd.Flags())
 }
