@@ -18,3 +18,9 @@ type soloTransaction struct {
 	Nonce  int
 	Amount *big.Int
 }
+
+//CLI params
+var accounts string
+var outputfile = "trans.json"
+var maxTransValue = 10
+var roundRobin = false
