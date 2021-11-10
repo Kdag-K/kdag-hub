@@ -44,3 +44,24 @@ func addSoloFlags(cmd *cobra.Command) {
 
 	viper.BindPFlags(cmd.Flags())
 }
+
+func newSoloCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "solo",
+		Short: "solo transactions",
+		Long: `
+Solo transactions generate a transaction set without needing access
+to the network toml file. You just need a well funded faucet account.
+The additional accounts can be generated using dogye keys generate
+`,
+		Args: cobra.ArbitraryArgs,
+		RunE: soloTransactions,
+	}
+	
+	addSoloFlags(cmd)
+	return cmd
+}
+
+func soloTransactions(cmd *cobra.Command, args []string) error {
+	return nil
+}
