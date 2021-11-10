@@ -18,3 +18,27 @@ const (
 	dogyeTransactionsDir = "trans"
 	networkTomlFileName    = "network.toml"
 )
+
+//TransCmd implements the transactions subcommand
+var TransCmd = &cobra.Command{
+	Use:   "transactions",
+	Short: "dogye transactions",
+	Long: `Server
+	
+The dogye transaction command is used to generate sets of transactions for
+testing networks.`,
+	
+	TraverseChildren: true,
+}
+
+func init() {
+	//Subcommands
+	TransCmd.AddCommand(
+		// newGenerateCmd(),
+		newSoloCmd(),
+	)
+	
+	TransCmd.PersistentFlags().StringVarP(&_keystore, "keystore", "k", _keystore, "keystore directory")
+	TransCmd.PersistentFlags().StringVarP(&_dogye, "dir", "d", _dogye, "dogye directory")
+	
+}
