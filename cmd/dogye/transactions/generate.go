@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -199,6 +200,112 @@ func generateTransactions(cmd *cobra.Command, args []string) error {
 		})
 	}
 	
+	fulltrans := nodeTransactions{Address: "", Moniker: ""}
+	faucettrans := nodeTransactions{Address: faucetAccount.Address, Moniker: faucetAccount.Moniker}
+	
+	for i := 0; i < totalTransactions; i++ {
+		var fromacct, toacct int
+		
+		for {
+			fromacct = rand.Intn(accountcnt)
+			toacct = rand.Intn(accountcnt)
+			if fromacct != toacct {
+				break
+			}
+		}
+		//	amt := int64((rand.Intn(1000) * 1000000) + (rand.Intn(1000) * 1000) + rand.Intn(999) + 1)
+		
+		amt := new(big.Int).SetInt64(int64(rand.Intn(99990) + 9))
+		amt.Mul(amt, new(big.Int).SetInt64(100000000))
+		amt.Mul(amt, new(big.Int).SetInt64(100000000))
+		
+		// TODO add some lower order bits noise
+		
+		credits[toacct].Add(credits[toacct], amt)
+		debits[fromacct].Add(debits[fromacct], amt)
+		
+		trans = append(trans, transaction{
+			From:   fromacct,
+			To:     toacct,
+			Amount: amt,
+		})
+		
+		nodeno := rand.Intn(nodecnt)
+		
+		newtrans := fulltransaction{
+			Node:     nodes[nodeno].NetAddr,
+			NodeName: nodes[nodeno].Moniker,
+			From:     accounts[fromacct].Address,
+			FromName: accounts[fromacct].Moniker,
+			To:       accounts[toacct].Address,
+			Amount:   amt,
+		}
+		
+		fulltrans.Transactions = append(fulltrans.Transactions, newtrans)
+		nodeTrans[fromacct].Transactions = append(nodeTrans[fromacct].Transactions, newtrans)
+		
+		//		common.DebugMessage(strconv.Itoa(i) + ": " + strconv.Itoa(fromacct) + ", " + strconv.Itoa(toacct) + ", " + strconv.FormatInt(amt, 10))
+	}
+	
+	for i := 0; i < accountcnt; i++ {
+		nodeno := rand.Intn(nodecnt)
+		
+		faucettrans.Transactions = append(faucettrans.Transactions, fulltransaction{
+			From:     faucetAccount.Address,
+			FromName: faucetAccount.Moniker,
+			To:       accounts[i].Address,
+			Amount:   new(big.Int).Add(debits[i], surplusCreditBig),
+			Node:     nodes[nodeno].NetAddr,
+			NodeName: nodes[nodeno].Moniker,
+		})
+		
+		deltas = append(deltas, delta{
+			Moniker:      accounts[i].Moniker,
+			Address:      accounts[i].Address,
+			TransCredit:  credits[i],
+			TransDebit:   debits[i],
+			TransNet:     new(big.Int).Sub(credits[i], debits[i]),
+			FaucetCredit: new(big.Int).Add(debits[i], surplusCreditBig),
+			TotalNet:     new(big.Int).Add(credits[i], surplusCreditBig),
+		})
+		
+		common.DebugMessage("Account " + accounts[i].Moniker + " +" +
+			credits[i].String() + " -" + debits[i].String())
+		
+		var jsonData []byte
+		
+		nodefile := filepath.Join(transDir, accounts[i].Moniker+".json")
+		jsonData, err = json.Marshal(nodeTrans[i])
+		if err != nil {
+			return err
+		}
+		files.WriteToFile(nodefile, string(jsonData), files.BackupExisting)
+		common.DebugMessage("Node File written: ", nodefile)
+		
+	}
+	
+	var jsonData []byte
+	
+	jsonData, err = json.Marshal(faucettrans)
+	if err != nil {
+		return err
+	}
+	files.WriteToFile(faucetTransFile, string(jsonData), files.BackupExisting)
+	common.DebugMessage("Faucet File written: ", faucetTransFile)
+	
+	jsonData, err = json.Marshal(fulltrans)
+	if err != nil {
+		return err
+	}
+	files.WriteToFile(transFile, string(jsonData), files.BackupExisting)
+	common.DebugMessage("Trans File written: ", transFile)
+	
+	jsonData, err = json.Marshal(deltas)
+	if err != nil {
+		return err
+	}
+	files.WriteToFile(deltaFile, string(jsonData), files.BackupExisting)
+	common.DebugMessage("Delta File written: ", deltaFile)
 	
 	return nil
 }
