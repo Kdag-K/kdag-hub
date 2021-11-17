@@ -22,3 +22,33 @@ type transaction struct {
 	To     int
 	Amount *big.Int
 }
+
+type fulltransaction struct {
+	Node     string
+	NodeName string
+	From     string
+	FromName string
+	To       string
+	Amount   *big.Int
+}
+
+type delta struct {
+	Moniker      string
+	Address      string
+	TransCredit  *big.Int
+	TransDebit   *big.Int
+	TransNet     *big.Int
+	FaucetCredit *big.Int
+	TotalNet     *big.Int
+}
+
+type node struct {
+	Moniker string
+	NetAddr string
+}
+
+type nodeTransactions struct {
+	Moniker      string
+	Address      string
+	Transactions []fulltransaction
+}
