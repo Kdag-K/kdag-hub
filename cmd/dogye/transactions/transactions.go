@@ -34,7 +34,7 @@ testing networks.`,
 func init() {
 	//Subcommands
 	TransCmd.AddCommand(
-		// newGenerateCmd(),
+		newGenerateCmd(),
 		newSoloCmd(),
 	)
 	
