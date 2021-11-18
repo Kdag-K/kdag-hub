@@ -23,7 +23,7 @@ func newListCmd() *cobra.Command {
 // list prints the names of all the folders in [datadir]/networks.
 func list(cmd *cobra.Command, args []string) error {
 	
-	networksDir := filepath.Join(configuration.DogyeConfigDir, dogyeNetworksDir)
+	networksDir := filepath.Join(configuration.DogyeConfigDir, dogyeNetworkDir)
 	
 	files, err := ioutil.ReadDir(networksDir)
 	if err != nil {
