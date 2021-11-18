@@ -7,18 +7,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/big"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	
 	"github.com/BurntSushi/toml"
-    config "github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/cmd/dogye/network"
 	"github.com/Kdag-K/kdag-hub/src/common"
+	config "github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/src/files"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
 func newGenerateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "generate",
@@ -26,10 +29,11 @@ func newGenerateCmd() *cobra.Command {
 		Args:  cobra.ArbitraryArgs,
 		RunE:  generateTransactions,
 	}
-	
+
 	addGenerateFlags(cmd)
 	return cmd
 }
+
 func addGenerateFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&networkName, "network", "n", "", "network name")
 	cmd.Flags().StringVar(&ips, "ips", "", "ips.dat file path")
@@ -101,6 +105,7 @@ func generateTransactions(cmd *cobra.Command, args []string) error {
 	if err := files.CreateDirsIfNotExists([]string{transDir}); err != nil {
 		return err
 	}
+
 	faucetTransFile := filepath.Join(transDir, "faucet.json")
 	transFile := filepath.Join(transDir, "trans.json")
 	deltaFile := filepath.Join(transDir, "delta.json")
@@ -132,6 +137,7 @@ func generateTransactions(cmd *cobra.Command, args []string) error {
 	var trans []transaction
 	var deltas []delta
 	var nodeTrans []nodeTransactions
+
 	common.DebugMessage("Parsing network.toml for node and accounts")
 	for _, n := range conf.Nodes {
 		
@@ -214,13 +220,11 @@ func generateTransactions(cmd *cobra.Command, args []string) error {
 			}
 		}
 		//	amt := int64((rand.Intn(1000) * 1000000) + (rand.Intn(1000) * 1000) + rand.Intn(999) + 1)
-		
 		amt := new(big.Int).SetInt64(int64(rand.Intn(99990) + 9))
 		amt.Mul(amt, new(big.Int).SetInt64(100000000))
 		amt.Mul(amt, new(big.Int).SetInt64(100000000))
 		
 		// TODO add some lower order bits noise
-		
 		credits[toacct].Add(credits[toacct], amt)
 		debits[fromacct].Add(debits[fromacct], amt)
 		
