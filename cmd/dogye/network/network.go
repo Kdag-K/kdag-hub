@@ -5,6 +5,8 @@ import (
 	
 	"github.com/Kdag-K/kdag-hub/cmd/dogye/configuration"
 	"github.com/Kdag-K/kdag-hub/src/files"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -19,6 +21,29 @@ const (
 var (
 	networkName = "network0"
 )
+//NetworkCmd is the CLI subcommand.
+var NetworkCmd = &cobra.Command{
+	Use:   "network",
+	Short: "Advanced Network Configuration",
+	Long: `Network
+	
+Advanced Network Config Manager. `,
+	
+	TraverseChildren: true,
+}
+
+func init() {
+	
+	//Subcommands
+	NetworkCmd.AddCommand(
+		newListCmd(),
+	)
+	
+	viper.BindPFlags(NetworkCmd.Flags())
+	
+	// make sure the giverny config folders exist.
+	createdogyeRootNetworkFolders()
+}
 
 
 func createdogyeRootNetworkFolders() error {
