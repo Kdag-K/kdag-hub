@@ -115,14 +115,14 @@ func exportAWSNodeConfig(networkDir, outPath string, n *node) error {
 
 		knodeDir := filepath.Join(outPath, n.Moniker)
 		configDir := filepath.Join(knodeDir, knodeconfig.ConfigDir)
-		knodeConfigDir := filepath.Join(configDir, knodeconfig.KdagDir)
+		kdagConfigDir := filepath.Join(configDir, knodeconfig.KdagDir)
 		ethConfigDir := filepath.Join(configDir, knodeconfig.EthDir)
 		keystoreDir := filepath.Join(knodeDir, knodeconfig.KeyStoreDir)
 
 		common.DebugMessage("Creating config in " + configDir)
 
 		err := files.CreateDirsIfNotExists([]string{
-			knodeConfigDir,
+			kdagConfigDir,
 			ethConfigDir,
 			keystoreDir,
 		})
@@ -130,10 +130,40 @@ func exportAWSNodeConfig(networkDir, outPath string, n *node) error {
 			return err
 		}
 		//copying record.
+		copying := []copyRecord{
+			{ // knode.toml
+				from: filepath.Join(networkDir, knodeconfig.KnodeTomlFile),
+				to:   filepath.Join(configDir, knodeconfig.KnodeTomlFile),
+			},
+			{ // eth/genesis.json
+				from: filepath.Join(networkDir, knodeconfig.GenesisJSON),
+				to:   filepath.Join(ethConfigDir, knodeconfig.GenesisJSON),
+			},
+			{ // knode/peers.json
+				from: filepath.Join(networkDir, knodeconfig.PeersJSON),
+				to:   filepath.Join(kdagConfigDir, knodeconfig.PeersJSON),
+			},
+			{ // knode/peers.genesis.json
+				from: filepath.Join(networkDir, knodeconfig.PeersGenesisJSON),
+				to:   filepath.Join(kdagConfigDir, knodeconfig.PeersGenesisJSON),
+			},
+			{ // keystore/<moniker>.json (private key)
+				from: filepath.Join(networkDir, knodeconfig.KeyStoreDir, n.Moniker+".json"),
+				to:   filepath.Join(keystoreDir, n.Moniker+".json"),
+			},
+			{ // keystore/<moniker>.text (password)
+				from: filepath.Join(networkDir, knodeconfig.KeyStoreDir, n.Moniker+".txt"),
+				to:   filepath.Join(keystoreDir, n.Moniker+".txt"),
+			},
+		}
+
+		for _, f := range copying {
+			files.CopyFileContents(f.from, f.to)
+		}
 
 		// Write a node description file containing all of the parameters needed
 		// to start a container. Saves having to load and parse network.toml for
-		//  every node
+		// x every node.
 		nodeConfigFile := filepath.Join(outPath, n.Moniker+".toml")
 		nodeConfig := dockerNodeConfig{
 			Moniker: n.Moniker,
