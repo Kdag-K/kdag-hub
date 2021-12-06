@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	dogyeNetworksDir  = "networks"
-	dogyeKeystoreDir  = "keystore"
-	dogyeDockerDir    = "docker"
-	dogyeTmpDir       = ".tmp"
+	dogyeNetworksDir    = "networks"
+	dogyeKeystoreDir    = "keystore"
+	dogyeDockerDir      = "docker"
+	dogyeTmpDir         = ".tmp"
 	defaultTokens       = "1234567890000000000000"
 	networkTomlFileName = "network.toml"
 )
@@ -21,7 +21,8 @@ const (
 var (
 	networkName = "network0"
 )
-//NetworkCmd is the CLI subcommand.
+
+// NetworkCmd is the CLI subcommand.
 var NetworkCmd = &cobra.Command{
 	Use:   "network",
 	Short: "Advanced Network Configuration",
@@ -34,9 +35,13 @@ Advanced Network Config Manager. `,
 
 func init() {
 	
-	//Subcommands
+	// Subcommands
 	NetworkCmd.AddCommand(
 		newListCmd(),
+		newAWSCmd(),
+		// newStartCmd(),
+		newDumpCmd(),
+		newLocationCmd(),
 	)
 	
 	viper.BindPFlags(NetworkCmd.Flags())
@@ -44,7 +49,6 @@ func init() {
 	// make sure the giverny config folders exist.
 	createdogyeRootNetworkFolders()
 }
-
 
 func createdogyeRootNetworkFolders() error {
 	
