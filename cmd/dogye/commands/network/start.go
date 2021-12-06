@@ -6,10 +6,11 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	
-	"github.com/BurntSushi/toml"
 	"github.com/Kdag-K/kdag-hub/cmd/dogye/configuration"
 	"github.com/Kdag-K/kdag-hub/src/common"
+	"github.com/Kdag-K/kdag-hub/src/docker"
 	"github.com/Kdag-K/kdag-hub/src/files"
+	"github.com/pelletier/go-toml"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -86,8 +87,12 @@ func startDockerNetwork(networkName string) error {
 		return errors.New("network " + networkName + " is not configured as a docker network")
 	}
 	
-	// Create a Docker Client
+	// Create a Docker Client.
 	common.DebugMessage("Connecting to Docker Client")
+	cli, err := docker.GetDockerClient()
+	if err != nil {
+		return err
+	}
 	
 	// Create a Docker Network.
 	common.DebugMessage(fmt.Sprintf("Created Network %s (%s)", conf.Docker.Name, networkID))
