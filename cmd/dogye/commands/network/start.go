@@ -51,6 +51,12 @@ func addStartFlags(cmd *cobra.Command) {
 }
 
 func networkStart(cmd *cobra.Command, args []string) error {
+	network := args[0]
+	
+	if err := startDockerNetwork(network); err != nil {
+		return err
+	}
+	
 	return nil
 }
 
