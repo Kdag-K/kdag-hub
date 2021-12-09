@@ -107,3 +107,30 @@ func startDockerNetwork(networkName string) error {
 	
 	return nil
 }
+
+func exportDockerConfigs(conf *Config) error {
+	
+	// Configure some paths.
+	networkDir := filepath.Join(configuration.DogyeConfigDir, dogyeNetworksDir, conf.Network.Name)
+	dockerDir := filepath.Join(networkDir, dogyeDockerDir)
+	err := files.CreateDirsIfNotExists([]string{dockerDir})
+	if err != nil {
+		return err
+	}
+	
+	// loop around nodes
+	for _, n := range conf.Nodes {
+		if !n.NonNode {
+			if err := exportDockerNodeConfig(networkDir, dockerDir, &n); err != nil {
+				return err
+			}
+		}
+	}
+	
+	return nil
+}
+
+func exportDockerNodeConfig(netDir string, dockerDir string, node *node) error {
+	
+	return nil
+}
