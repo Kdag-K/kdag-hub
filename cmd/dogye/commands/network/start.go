@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 	
 	"github.com/Kdag-K/kdag-hub/cmd/dogye/configuration"
 	"github.com/Kdag-K/kdag-hub/src/common"
+	config "github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/src/docker"
 	"github.com/Kdag-K/kdag-hub/src/files"
 	"github.com/pelletier/go-toml"
@@ -111,8 +113,8 @@ func startDockerNetwork(networkName string) error {
 func exportDockerConfigs(conf *Config) error {
 	
 	// Configure some paths.
-	networkDir := filepath.Join(configuration.DogyeConfigDir, dogyeNetworksDir, conf.Network.Name)
-	dockerDir := filepath.Join(networkDir, dogyeDockerDir)
+	netDir := filepath.Join(configuration.DogyeConfigDir, dogyeNetworksDir, conf.Network.Name)
+	dockerDir := filepath.Join(netDir, dogyeDockerDir)
 	err := files.CreateDirsIfNotExists([]string{dockerDir})
 	if err != nil {
 		return err
@@ -121,7 +123,7 @@ func exportDockerConfigs(conf *Config) error {
 	// loop around nodes
 	for _, n := range conf.Nodes {
 		if !n.NonNode {
-			if err := exportDockerNodeConfig(networkDir, dockerDir, &n); err != nil {
+			if err := exportDockerNodeConfig(netDir, dockerDir, &n); err != nil {
 				return err
 			}
 		}
@@ -130,7 +132,87 @@ func exportDockerConfigs(conf *Config) error {
 	return nil
 }
 
-func exportDockerNodeConfig(netDir string, dockerDir string, node *node) error {
-	
+func exportDockerNodeConfig(netDir, dockerDir string, node *node) error {
+	netaddr := node.NetAddr
+	if !strings.Contains(netaddr, ":") {
+		netaddr += ":" + config.DefaultGossipPort
+	}
+	// Build output files.
+	if node.Moniker != "" { // Should not be blank here, but safety first
+		
+		knodeDir := filepath.Join(dockerDir, node.Moniker, config.KnodeTomlDirDot)
+		
+		configDir := filepath.Join(knodeDir, config.ConfigDir)
+		kdagConfigDir := filepath.Join(configDir, config.KdagDir)
+		ethConfigDir := filepath.Join(configDir, config.EthDir)
+		keystoreDir := filepath.Join(knodeDir, config.KeyStoreDir)
+		
+		common.DebugMessage("Creating config in " + knodeDir)
+		
+		err := files.CreateDirsIfNotExists([]string{
+			kdagConfigDir,
+			ethConfigDir,
+			keystoreDir,
+		})
+		if err != nil {
+			return err
+		}
+		
+		copying := []copyRecord{
+			{ // knode.toml
+				from: filepath.Join(netDir, config.KnodeTomlFile),
+				to:   filepath.Join(configDir, config.KnodeTomlFile),
+			},
+			{ // eth/genesis.json
+				from: filepath.Join(netDir, config.GenesisJSON),
+				to:   filepath.Join(ethConfigDir, config.GenesisJSON),
+			},
+			{ // kdag/peers.json
+				from: filepath.Join(netDir, config.PeersJSON),
+				to:   filepath.Join(kdagConfigDir, config.PeersJSON),
+			},
+			{ // kdag/peers.genesis.json
+				from: filepath.Join(netDir, config.PeersGenesisJSON),
+				to:   filepath.Join(kdagConfigDir, config.PeersGenesisJSON),
+			},
+			{ // keystore/<moniker>.json (private key)
+				from: filepath.Join(netDir, config.KeyStoreDir, node.Moniker+".json"),
+				to:   filepath.Join(keystoreDir, node.Moniker+".json"),
+			},
+			{ // keystore/<moniker>.text (password)
+				from: filepath.Join(netDir, config.KeyStoreDir, node.Moniker+".txt"),
+				to:   filepath.Join(keystoreDir, node.Moniker+".txt"),
+			},
+		}
+		
+		for _, f := range copying {
+			files.CopyFileContents(f.from, f.to)
+		}
+		
+		// Write a node description file containing all of the parameters needed
+		// to start a container. Saves having to load and parse network.toml for
+		//  every node
+		nodeConfigFile := filepath.Join(dockerDir, node.Moniker+".toml")
+		nodeConfig := dockerNodeConfig{
+			Moniker: node.Moniker,
+			NetAddr: strings.Split(netaddr, ":")[0],
+		}
+		
+		tomlBytes, err := toml.Marshal(nodeConfig)
+		if err != nil {
+			return err
+		}
+		
+		err = files.WriteToFile(nodeConfigFile, string(tomlBytes), files.OverwriteSilently)
+		if err != nil {
+			return err
+		}
+		
+		// edit knode.toml and set kdag.listen appropriately
+		
+		// decrypt the validator private key, and dump it into the kdag config
+		// dir (priv_key)
+		
+	}
 	return nil
 }
