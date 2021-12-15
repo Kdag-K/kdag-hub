@@ -7,11 +7,14 @@ import (
 	"path/filepath"
 	"strings"
 	
+	"github.com/Kdag-K/evm/src/crypto"
+	"github.com/Kdag-K/evm/src/keystore"
 	"github.com/Kdag-K/kdag-hub/cmd/dogye/configuration"
 	"github.com/Kdag-K/kdag-hub/src/common"
 	config "github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/src/docker"
 	"github.com/Kdag-K/kdag-hub/src/files"
+	eth_keystore "github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/pelletier/go-toml"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -106,7 +109,22 @@ func startDockerNetwork(networkName string) error {
 	common.DebugMessage(fmt.Sprintf("Created Network %s (%s)", conf.Docker.Name, networkID))
 	
 	// Next we build the docker configurations to get all of the configs ready to push.
+	err = exportDockerConfigs(&conf)
+	if err != nil {
+		return err
+	}
 	
+	if startNodes {
+		for _, n := range conf.Nodes {
+			if !n.NonNode {
+				common.DebugMessage("Starting node " + n.Moniker)
+				if err := pushDockerNode(networkName, n.Moniker, imgName, imgIsRemote); err != nil {
+					return err
+				}
+			}
+		}
+		
+	}
 	return nil
 }
 
@@ -211,8 +229,59 @@ func exportDockerNodeConfig(netDir, dockerDir string, node *node) error {
 		// edit knode.toml and set kdag.listen appropriately
 		
 		// decrypt the validator private key, and dump it into the kdag config
-		// dir (priv_key)
+		// dir (priv_key).
+		err = generateKdagPrivateKey(
+			filepath.Join(keystoreDir, node.Moniker+".json"),
+			filepath.Join(keystoreDir, node.Moniker+".txt"),
+			node.Moniker,
+			kdagConfigDir)
+		if err != nil {
+			return err
+		}
 		
 	}
+	return nil
+}
+
+func generateKdagPrivateKey(keyfile, pwdfile, moniker, outDir string) error {
+	
+	if moniker == "" {
+		return nil
+	} // If account not set, do nothing
+	
+	if !files.CheckIfExists(keyfile) {
+		return errors.New("cannot read keyfile: " + keyfile)
+	}
+	
+	if !files.CheckIfExists(pwdfile) {
+		common.DebugMessage("No passphrase file available")
+		pwdfile = ""
+	}
+	
+	keyjson, err := ioutil.ReadFile(keyfile)
+	if err != nil {
+		return fmt.Errorf("Failed to read the keyfile at '%s': %v", keyfile, err)
+	}
+	
+	// Decrypt key with passphrase.
+	passphrase, err := crypto.GetPassphrase(pwdfile, false)
+	if err != nil {
+		return err
+	}
+	
+	key, err := eth_keystore.DecryptKey(keyjson, passphrase)
+	if err != nil {
+		return fmt.Errorf("Error decrypting key: %v", err)
+	}
+	
+	addr := key.Address.Hex()
+	
+	err = keystore.DumpPrivKey(outDir, key.PrivateKey)
+	if err != nil {
+		return fmt.Errorf("Error writing raw key: %v", err)
+	}
+	
+	common.DebugMessage("Written Private Key for " + addr)
+	
 	return nil
 }
