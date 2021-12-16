@@ -17,7 +17,7 @@ import (
 
 // Parameters for docker client
 const (
-	imgName     = "mosaicnetworks/monetd:latest"
+	imgName     = "kdag-k/khub:latest"
 	imgIsRemote = false
 )
 
@@ -30,7 +30,7 @@ dogye network push
 
 This command is called after 'dogye network start'. It builds a node based on
 the configation files found for <node>, attaches it to the docker network, and
-starts monetd.
+starts khub.
 		`,
 		Args: cobra.ExactArgs(2),
 		RunE: networkPush,
@@ -120,7 +120,10 @@ func pushDockerNode(networkName, nodeName, imgName string, isRemoteImage bool) e
 	
 	// Start Node
 	common.DebugMessage("Starting Container ")
-	
+	err = docker.StartContainer(cli, containerID)
+	if err != nil {
+		return err
+	}
 	common.DebugMessage("Container Started")
 	
 	return nil
