@@ -28,7 +28,7 @@ func CreateContainerFromImage(cli *client.Client, imageName string, isImageRemot
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Cmd:   cmd,
 		Image: imageName,
-	}, nil, nil, nodeName)
+	}, nil, nil, nil, nodeName)
 	if err != nil {
 		return "", err
 	}

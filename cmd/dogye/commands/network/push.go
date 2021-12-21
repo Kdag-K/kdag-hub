@@ -109,6 +109,13 @@ func pushDockerNode(networkName, nodeName, imgName string, isRemoteImage bool) e
 	
 	// Create Node
 	common.DebugMessage("Creating Container ")
+	containerID, err := docker.CreateContainerFromImage(
+		cli,
+		imgName,
+		isRemoteImage,
+		nodeName,
+		strslice.StrSlice{"run"},
+		false)
 	
 	common.DebugMessage("Created Container " + containerID)
 	
