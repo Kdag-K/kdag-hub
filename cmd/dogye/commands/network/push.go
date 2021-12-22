@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	
 	"github.com/Kdag-K/kdag-hub/src/docker"
+	"github.com/docker/docker/api/types/strslice"
 	"github.com/pelletier/go-toml"
 	
 	"github.com/Kdag-K/kdag-hub/cmd/dogye/configuration"
@@ -121,10 +122,16 @@ func pushDockerNode(networkName, nodeName, imgName string, isRemoteImage bool) e
 	
 	// Copy Configuration to Node
 	common.DebugMessage("Copying Config to Container ")
-	
+	err = docker.CopyToContainer(cli, containerID, dockerconfigpath, "/")
+	if err != nil {
+		return err
+	}
 	// Configure Networking
 	common.DebugMessage("Connecting Container to Network")
-	
+	err = docker.ConnectContainerToNetwork(cli, networkID, containerID, config.NetAddr)
+	if err != nil {
+		return err
+	}
 	// Start Node
 	common.DebugMessage("Starting Container ")
 	err = docker.StartContainer(cli, containerID)
