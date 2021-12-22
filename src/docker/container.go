@@ -7,6 +7,7 @@ import (
 	
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
 )
@@ -47,4 +48,29 @@ func StartContainer(cli *client.Client, containerID string) error {
 	
 	ctx := context.Background()
 	return cli.ContainerStart(ctx, containerID, types.ContainerStartOptions{})
+}
+
+// RemoveContainer removes a container.
+func RemoveContainer(cli *client.Client, containerID string, force, removelinks, removevolumes bool) error {
+	ctx := context.Background()
+	if err := cli.ContainerRemove(ctx, containerID, types.ContainerRemoveOptions{
+		Force:         force,
+		RemoveLinks:   removelinks,
+		RemoveVolumes: removevolumes,
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ConnectContainerToNetwork connects a created container to an extant network.
+func ConnectContainerToNetwork(cli *client.Client, networkID string, containerID string, ip string) error {
+	
+	ctx := context.Background()
+	
+	return cli.NetworkConnect(ctx, networkID, containerID,
+		&network.EndpointSettings{
+			IPAMConfig: &network.EndpointIPAMConfig{IPv4Address: ip},
+			IPAddress:  ip,
+		})
 }
