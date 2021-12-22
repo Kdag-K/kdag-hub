@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	
-	"github.com/moby/moby/api/types"
-	"github.com/moby/moby/client"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 )
 
 // GetNetworks lists networks.
