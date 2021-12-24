@@ -66,6 +66,7 @@ func RemoveContainer(cli *client.Client, containerID string, force, removelinks,
 	}); err != nil {
 		return err
 	}
+	
 	return nil
 }
 
