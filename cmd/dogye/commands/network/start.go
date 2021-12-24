@@ -106,6 +106,15 @@ func startDockerNetwork(networkName string) error {
 	}
 	
 	// Create a Docker Network.
+	networkID, err := docker.SafeCreateNetwork(cli,
+		conf.Docker.Name,
+		conf.Docker.Subnet,
+		conf.Docker.IPRange,
+		conf.Docker.Gateway,
+		forceNetwork, useExisting)
+	if err != nil {
+		return err
+	}
 	common.DebugMessage(fmt.Sprintf("Created Network %s (%s)", conf.Docker.Name, networkID))
 	
 	// Next we build the docker configurations to get all of the configs ready to push.
@@ -129,7 +138,6 @@ func startDockerNetwork(networkName string) error {
 }
 
 func exportDockerConfigs(conf *Config) error {
-	
 	// Configure some paths.
 	netDir := filepath.Join(configuration.DogyeConfigDir, dogyeNetworksDir, conf.Network.Name)
 	dockerDir := filepath.Join(netDir, dogyeDockerDir)
@@ -227,7 +235,12 @@ func exportDockerNodeConfig(netDir, dockerDir string, node *node) error {
 		}
 		
 		// edit knode.toml and set kdag.listen appropriately
-		
+		err = setListenAddressInToml(
+			filepath.Join(configDir, config.KnodeTomlFile),
+			netaddr)
+		if err != nil {
+			return err
+		}
 		// decrypt the validator private key, and dump it into the kdag config
 		// dir (priv_key).
 		err = generateKdagPrivateKey(
@@ -240,6 +253,22 @@ func exportDockerNodeConfig(netDir, dockerDir string, node *node) error {
 		}
 		
 	}
+	return nil
+}
+
+func setListenAddressInToml(toml string, listen string) error {
+	// For a simple change, tree is quicker and easier than unmarshalling the whole tree.
+	tree, err := files.LoadToml(toml)
+	if err != nil {
+		return err
+	}
+	
+	tree.SetPath([]string{"kdag", "listen"}, listen)
+	files.SaveToml(tree, toml)
+	if err != nil {
+		return err
+	}
+	
 	return nil
 }
 
