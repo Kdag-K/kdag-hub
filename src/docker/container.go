@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -67,6 +68,39 @@ func RemoveContainer(cli *client.Client, containerID string, force, removelinks,
 		return err
 	}
 	
+	return nil
+}
+
+// GetContainers lists containers.
+func GetContainers(cli *client.Client, output bool) (map[string]string, error) {
+	
+	rtn := make(map[string]string)
+	
+	ctx := context.Background()
+	arrRes, err := cli.ContainerList(ctx, types.ContainerListOptions{All: true})
+	if err != nil {
+		fmt.Println(err.Error())
+		return rtn, err
+	}
+	
+	for _, net := range arrRes {
+		if output {
+			fmt.Printf("%s   %s  %s\n", net.Names[0], net.ID, net.Status)
+		}
+		if len(net.Names) > 0 {
+			rtn[strings.TrimLeft(net.Names[0], "/")] = net.ID
+		}
+	}
+	
+	return rtn, nil
+}
+
+// StopContainer stops a container
+func StopContainer(cli *client.Client, containerID string) error {
+	ctx := context.Background()
+	if err := cli.ContainerStop(ctx, containerID, nil); err != nil {
+		return err
+	}
 	return nil
 }
 
