@@ -37,9 +37,13 @@ func init() {
 	
 	// Subcommands
 	NetworkCmd.AddCommand(
+		newAWSCmd(),
+		newStartCmd(),
+		newPushCmd(),
+		newStatusCmd(),
+		newStopCmd(),
 		newListCmd(),
 		newAWSCmd(),
-		// newStartCmd(),
 		newDumpCmd(),
 		newLocationCmd(),
 	)
