@@ -4,12 +4,13 @@ go 1.17
 
 require (
 	github.com/BurntSushi/toml v0.4.1
-	github.com/Kdag-K/evm v0.0.0-20210812065655-f4a7f10f310e
+	github.com/Kdag-K/evm v0.0.0-20220113021955-01e5a32ad868
 	github.com/Kdag-K/kdag v0.0.0-20210721074815-c589ecbf705d
 	github.com/docker/docker v20.10.11+incompatible
 	github.com/ethereum/go-ethereum v1.10.12
 	github.com/fatih/color v1.13.0
 	github.com/pelletier/go-toml v1.9.4
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
@@ -90,7 +91,6 @@ require (
 	github.com/pion/transport v0.8.10 // indirect
 	github.com/pion/turn/v2 v2.0.2 // indirect
 	github.com/pion/webrtc/v2 v2.2.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/tsdb v0.7.1 // indirect
 	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect

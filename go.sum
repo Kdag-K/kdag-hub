@@ -83,8 +83,8 @@ github.com/BurntSushi/toml v0.4.1 h1:GaI7EiDXDRfa8VshkTj7Fym7ha+y8/XxIgD2okUIjLw
 github.com/BurntSushi/toml v0.4.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/Kdag-K/evm v0.0.0-20210812065655-f4a7f10f310e h1:YCPxmBvIU0tds3BA+5ij0j9yk0LgBpHJN5DADrgHpkI=
-github.com/Kdag-K/evm v0.0.0-20210812065655-f4a7f10f310e/go.mod h1:EO9u1KAc1Po4Zxw0viD+IDH3mtpEkMj/pZlYFpTG9o0=
+github.com/Kdag-K/evm v0.0.0-20220113021955-01e5a32ad868 h1:vhvzLmnqWE0CJGzz0KGwKU1N16Zt0IQiQ70Sste8zKY=
+github.com/Kdag-K/evm v0.0.0-20220113021955-01e5a32ad868/go.mod h1:EO9u1KAc1Po4Zxw0viD+IDH3mtpEkMj/pZlYFpTG9o0=
 github.com/Kdag-K/kdag v0.0.0-20210721074815-c589ecbf705d h1:qzxBc/m2t/OfPh11GWxgVr5OvP+tbw0MPfGWUO/q7Mw=
 github.com/Kdag-K/kdag v0.0.0-20210721074815-c589ecbf705d/go.mod h1:NBVa7Ijmms6zKekuhpzm5xFWIryqEGwCfg1GZrM0770=
 github.com/Microsoft/go-winio v0.4.11/go.mod h1:VhR8bwka0BXejwEJY73c50VrPtXAaKcyvVC4A4RozmA=
