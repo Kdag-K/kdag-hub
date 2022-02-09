@@ -4,18 +4,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 
 	"github.com/Kdag-K/kdag-hub/src/genesis"
-	bpeers "github.com/mosaicnetworks/babble/src/peers"
+	bpeers "github.com/Kdag-K/kdag-hub/src/peers"
 
-	"github.com/Kdag-K/kdag-hub/cmd/giverny/configuration"
+	"github.com/Kdag-K/kdag-hub/cmd/dogye/configuration"
 	"github.com/Kdag-K/kdag-hub/src/common"
 	monetconfig "github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/src/files"
-	"github.com/pelletier/go-toml"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +41,7 @@ func buildNetwork(networkName string) error {
 	}
 
 	// Check all the files and directories we expect actually exist
-	thisNetworkDir := filepath.Join(configuration.GivernyConfigDir, givernyNetworksDir, networkName)
+	thisNetworkDir := filepath.Join(configuration.DogyeConfigDir, dogyeNetworksDir, networkName)
 	if !files.CheckIfExists(thisNetworkDir) {
 		return errors.New("cannot find the configuration folder, " + thisNetworkDir + " for " + networkName)
 	}
@@ -75,10 +75,63 @@ func buildNetwork(networkName string) error {
 }
 
 func generateKnodeConfig(conf *Config, thisNetworkDir string) error {
+	var peers []*bpeers.Peer
+	var alloc = make(genesis.Alloc)
+
+	for _, n := range conf.Nodes {
+
+		netaddr := n.NetAddr
+		if !strings.Contains(netaddr, ":") {
+			netaddr += ":" + monetconfig.DefaultGossipPort
+		}
+
+		rec := genesis.AllocRecord{Moniker: n.Moniker, Balance: n.Tokens}
+		alloc[n.Address] = &rec
+
+		if !n.Validator || n.NonNode {
+			continue
+		}
+
+		peers = append(peers, bpeers.NewPeer(n.PubKeyHex, netaddr, n.Moniker))
+	}
+
+	err := generateKdagFiles(thisNetworkDir, peers)
+	if err != nil {
+		return err
+	}
+
+	err = genesis.GenerateGenesisJSON(thisNetworkDir,
+		"",
+		peers,
+		&alloc,
+		monetconfig.DefaultContractAddress,
+		monetconfig.DefaultControllerContractAddress,
+	)
+	if err != nil {
+		return err
+	}
 
 	return err
 }
 
 func generateKdagFiles(configDir string, peers []*bpeers.Peer) error {
+	peersJSONOut, err := json.MarshalIndent(peers, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	// write peers.json
+	jsonFileName := filepath.Join(configDir, monetconfig.PeersJSON)
+	err = files.WriteToFile(jsonFileName, string(peersJSONOut), files.OverwriteSilently)
+	if err != nil {
+		return err
+	}
+
+	// Write peers.genesis.json
+	jsonFileName = filepath.Join(configDir, monetconfig.PeersGenesisJSON)
+	err = files.WriteToFile(jsonFileName, string(peersJSONOut), files.OverwriteSilently)
+	if err != nil {
+		return err
+	}
 	return nil
 }
