@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/Kdag-K/kdag-hub/src/genesis"
-	bpeers "github.com/Kdag-K/kdag-hub/src/peers"
+	bpeers "github.com/Kdag-K/kdag/src/peers"
 
 	"github.com/Kdag-K/kdag-hub/cmd/dogye/configuration"
 	"github.com/Kdag-K/kdag-hub/src/common"
