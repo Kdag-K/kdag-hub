@@ -14,7 +14,7 @@ import (
 
 	"github.com/Kdag-K/kdag-hub/cmd/dogye/configuration"
 	"github.com/Kdag-K/kdag-hub/src/common"
-	monetconfig "github.com/Kdag-K/kdag-hub/src/configuration"
+	knodeconfig "github.com/Kdag-K/kdag-hub/src/configuration"
 	"github.com/Kdag-K/kdag-hub/src/files"
 	"github.com/spf13/cobra"
 )
@@ -82,7 +82,7 @@ func generateKnodeConfig(conf *Config, thisNetworkDir string) error {
 
 		netaddr := n.NetAddr
 		if !strings.Contains(netaddr, ":") {
-			netaddr += ":" + monetconfig.DefaultGossipPort
+			netaddr += ":" + knodeconfig.DefaultGossipPort
 		}
 
 		rec := genesis.AllocRecord{Moniker: n.Moniker, Balance: n.Tokens}
@@ -104,8 +104,8 @@ func generateKnodeConfig(conf *Config, thisNetworkDir string) error {
 		"",
 		peers,
 		&alloc,
-		monetconfig.DefaultContractAddress,
-		monetconfig.DefaultControllerContractAddress,
+		knodeconfig.DefaultContractAddress,
+		knodeconfig.DefaultControllerContractAddress,
 	)
 	if err != nil {
 		return err
@@ -121,14 +121,14 @@ func generateKdagFiles(configDir string, peers []*bpeers.Peer) error {
 	}
 
 	// write peers.json
-	jsonFileName := filepath.Join(configDir, monetconfig.PeersJSON)
+	jsonFileName := filepath.Join(configDir, knodeconfig.PeersJSON)
 	err = files.WriteToFile(jsonFileName, string(peersJSONOut), files.OverwriteSilently)
 	if err != nil {
 		return err
 	}
 
 	// Write peers.genesis.json
-	jsonFileName = filepath.Join(configDir, monetconfig.PeersGenesisJSON)
+	jsonFileName = filepath.Join(configDir, knodeconfig.PeersGenesisJSON)
 	err = files.WriteToFile(jsonFileName, string(peersJSONOut), files.OverwriteSilently)
 	if err != nil {
 		return err
