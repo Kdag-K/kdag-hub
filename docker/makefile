@@ -12,13 +12,13 @@ knode-image:
 		--ldflags '-extldflags "-static"' \
 		-o knode/knode ../cmd/knode/
 	cp solc knode/solc
-	docker build --no-cache=true -t mosaicnetworks/knode:$(KNODE_VERSION) -t mosaicnetworks/knode:latest ./knode/
+	docker build --no-cache=true -t Kdag-K/knode:$(KNODE_VERSION) -t Kdag-K/knode:latest ./knode/
 
 dogye-image:
 	go build \
 		--ldflags '-extldflags "-static"' \
 		-o dogye/dogye ../cmd/dogye/
 	cp solc dogye/solc
-	docker build --no-cache=true -t mosaicnetworks/dogye:$(DOGYE_VERSION) -t mosaicnetworks/dogye:latest ./dogye/
+	docker build --no-cache=true -t Kdag-K/dogye:$(DOGYE_VERSION) -t Kdag-K/dogye:latest ./dogye/
 
 .PHONY: solidity knode-image dogye-image
