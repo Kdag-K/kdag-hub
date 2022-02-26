@@ -98,7 +98,7 @@ echo "$0 $VERBOSE --accounts=$ACCTCNT --transactions=$TRANSCNT --faucet=\"$FAUCE
 
 # Derived globals section
 
-OUTDIR="$OUTDIRSTEM/trans.$$"
+OUTDIR="$OUTDIRSTEM/trx.$$"
 SUFFIX=".json"
 TRANSFILE=$OUTDIR/trans$SUFFIX
 PRE=$OUTDIR/pre.json
@@ -242,7 +242,7 @@ res2=$(date +%s.%N)
 PIDS=""
 for i in $(seq 1 $ACCTCNT)
 do
-    ( $mydir/run-trans.sh $OUTDIR/$PREFIX$i$SUFFIX  ) & PIDS="$PIDS $!"
+    ( $mydir/run-trx.sh $OUTDIR/$PREFIX$i$SUFFIX  ) & PIDS="$PIDS $!"
 done
 
 # Wait for background tasks to finish
