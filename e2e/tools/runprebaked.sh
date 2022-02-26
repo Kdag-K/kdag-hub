@@ -1,28 +1,28 @@
 #!/bin/bash
 
-TRANSSET=$1
-STATSCODE=$TRANSSET
+TRXSET=$1
+STATSCODE=$TRXSET
 
 
 STATSFILE="$HOME/prebakedstats.txt"
 NET="prebaked"
-GIVDIR="$HOME/.giverny/networks/$NET"
-TRANS="$GIVDIR/trx"
+GIVDIR="$HOME/.dogye/networks/$NET"
+TRX="$GIVDIR/trx"
 PREFIX="Test"
 SUFFIX=".json"
 FAUCET="Faucet"
 NODEHOST="172.77.5.10"
 NODEPORT="8080"
 NODENAME="Node0"
-OUTDIR=$TRANS/$TRANSSET
+OUTDIR=$TRX/$TRXSET
 
-STEM=$(basename $TRANSSET)
-STEM=${STEM##trans_}
+STEM=$(basename $TRXSET)
+STEM=${STEM##TRX_}
 ACCTCNT=${STEM%%_*}
-TRANSCNT=${STEM##*_}
+TRXCNT=${STEM##*_}
 
 
-TRANSFILE=""
+TRXFILE=""
 CONFIGDIR=""
 PRE=""
 
@@ -35,7 +35,7 @@ if [ ! -d "$OUTDIR" ] ; then
     exit 1
 fi
 
-# Start Trans Timestamp
+# Start TRX Timestamp
 res2=$(date +%s.%N)
 
 
@@ -64,12 +64,12 @@ dt2=$(echo "$res3 - $res2" | bc)
 
 # Check values of accounts as expected
 echo node $mydir/index.js --account=$FAUCET --nodename=$NODENAME --nodehost=$NODEHOST \
- --nodeport=$NODEPORT --transfile=$TRANSFILE --configdir=$CONFIGDIR  --pre=$PRE
+ --nodeport=$NODEPORT --TRXfile=$TRXFILE --configdir=$CONFIGDIR  --pre=$PRE
 exitcode=$?
 
-echo "Preparing $TRANSCNT transactions took $dt seconds"
-echo "$TRANSCNT transactions applying took $dt2 seconds"
-rate=$(echo "scale=4;$TRANSCNT / $dt2" | bc)
+echo "Preparing $TRXCNT transactions took $dt seconds"
+echo "$TRXCNT transactions applying took $dt2 seconds"
+rate=$(echo "scale=4;$TRXCNT / $dt2" | bc)
 echo "$rate transactions per second"
 
 
@@ -84,7 +84,7 @@ then
     echo "PASSED"
 
     if [ ! -z "$STATSCODE" ] ; then
-      echo "$TRANSCNT $ACCTCNT $dt2 $STATSCODE" >> $STATSFILE
+      echo "$TRXCNT $ACCTCNT $dt2 $STATSCODE" >> $STATSFILE
     fi
 
 
