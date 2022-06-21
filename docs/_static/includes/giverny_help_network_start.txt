@@ -1,0 +1,17 @@
+[..monetd] $ giverny help network start
+
+giverny network start
+
+Starts a network. Does not start individual nodes.
+
+Usage:
+  giverny network start [network] [flags]
+
+Flags:
+      --force-network   force network down if already exists
+  -h, --help            help for start
+      --start-nodes     start nodes
+      --use-existing    use existing network if already exists
+
+Global Flags:
+  -v, --verbose   verbose messages
