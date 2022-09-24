@@ -1,0 +1,27 @@
+[..monetd] $ giverny help network add
+Network
+	
+Advanced Network Config Manager.
+
+Usage:
+  giverny network [command]
+
+Available Commands:
+  aws         write aws configuration files
+  build       build monetd configuration files based on a giverny network file
+  dump        Dump the network settings
+  list        list configured networks
+  location    show the location of the configuration files
+  new         new configuration for a multi-node network
+  push        push a node onto the named network
+  start       start a docker network
+  status      shows network status
+  stop        stop a network
+
+Flags:
+  -h, --help   help for network
+
+Global Flags:
+  -v, --verbose   verbose messages
+
+Use "giverny network [command] --help" for more information about a command.

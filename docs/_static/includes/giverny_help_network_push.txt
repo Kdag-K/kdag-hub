@@ -1,0 +1,16 @@
+[..monetd] $ giverny help network push
+
+giverny network push
+
+This command is called after 'giverny network start'. It builds a node based on
+the configation files found for <node>, attaches it to the docker network, and
+starts monetd.
+
+Usage:
+  giverny network push [network] [node] [flags]
+
+Flags:
+  -h, --help   help for push
+
+Global Flags:
+  -v, --verbose   verbose messages
