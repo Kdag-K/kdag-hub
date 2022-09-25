@@ -1,0 +1,13 @@
+[..monetd] $ giverny help keys import
+create an encrypted keyfile from an existing private key
+
+Usage:
+  giverny keys import [moniker] [keyfile] [flags]
+
+Flags:
+  -h, --help              help for import
+      --passfile string   the file that contains the passphrase for the keyfile
+
+Global Flags:
+  -k, --keystore string   keystore directory (default "/home/user/.monet/keystore")
+  -v, --verbose           verbose messages
