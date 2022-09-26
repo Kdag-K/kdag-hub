@@ -1,0 +1,4 @@
+Global Flags:
+  -v, --verbose   verbose messages
+
+Use "giverny keys [command] --help" for more information about a command.
