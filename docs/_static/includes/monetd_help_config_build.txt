@@ -1,0 +1,21 @@
+[..monetd] $ monetd help config build
+
+Create the configuration for a single-node network.
+
+Use the keystore account identified by [moniker] to define a network with a
+single node. All the accounts in <keystore> are also credited with a large 
+amount of tokens in the genesis file. This command is mostly used for testing.
+If the --address flag is omitted, the first non-loopback address is used.
+
+Usage:
+  monetd config build [moniker] [flags]
+
+Flags:
+      --address string    IP/hostname of this node (default "192.168.0.13")
+      --config string     output directory (default "/home/user/.monet/monetd-config")
+  -h, --help              help for build
+      --keystore string   keystore directory (default "/home/user/.monet/keystore")
+      --passfile string   file containing the passphrase
+
+Global Flags:
+  -v, --verbose   verbose output

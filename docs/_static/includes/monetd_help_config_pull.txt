@@ -1,0 +1,33 @@
+[..monetd] $ monetd help config pull
+
+The pull subcommand is used to join an existing network. It takes the address
+(host:port) of a running node, and downloads the following set of files into the
+configuration directory <config>:
+
+- babble/peers.json         : The current validator-set 
+- babble/peers.genesis.json : The initial validator-set
+- eth/genesis.json          : The genesis file
+
+Additionally, this command configures the key and network address of the new
+node. The --key flag identifies a keyfile by moniker, which is expected to be in 
+the <keystore>. If --passfile is not specified, the user will be prompted to
+enter the passphrase manually. If the --address flag is omitted, the first 
+non-loopback address is used.
+
+Usage:
+  monetd config pull [host:port] [flags]
+
+Examples:
+  monetd config pull "192.168.5.1:8080"
+
+Flags:
+      --address string    IP/hostname of this node (default "192.168.0.13")
+      --config string     output directory (default "/home/user/.monet/monetd-config")
+  -f, --force             don't prompt before manipulating files
+  -h, --help              help for pull
+      --key string        moniker of the key to use for this node
+      --keystore string   keystore directory (default "/home/user/.monet/keystore")
+      --passfile string   file containing the passphrase
+
+Global Flags:
+  -v, --verbose   verbose output

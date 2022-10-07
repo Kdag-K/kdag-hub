@@ -1,0 +1,23 @@
+[..monetd] $ monetd help
+
+Monetd is the daemon component of the Monet Toolchain; a distributed
+smart-contract platform based on the Ethereum Virtual Machine and Babble 
+consensus.  
+	
+See the documentation at https://docs.monet.network/ for further information.
+
+Usage:
+  monetd [command]
+
+Available Commands:
+  config      manage configuration
+  help        Help about any command
+  keys        manage keys
+  run         run a node
+  version     show version info
+
+Flags:
+  -h, --help      help for monetd
+  -v, --verbose   verbose output
+
+Use "monetd [command] --help" for more information about a command.

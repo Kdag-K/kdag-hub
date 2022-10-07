@@ -1,0 +1,14 @@
+[..monetd] $ monetd help keys list
+List keyfiles in <keystore>
+
+Usage:
+  monetd keys list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --json              output JSON instead of human-readable format
+      --keystore string   keystore directory (default "/home/user/.monet/keystore")
+      --passfile string   file containing the passphrase
+  -v, --verbose           verbose output

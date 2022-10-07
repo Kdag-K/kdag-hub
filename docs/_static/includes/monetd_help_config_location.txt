@@ -1,0 +1,11 @@
+[..monetd] $ monetd help config location
+Show the default locations of monetd configuration files.
+
+Usage:
+  monetd config location [flags]
+
+Flags:
+  -h, --help   help for location
+
+Global Flags:
+  -v, --verbose   verbose output
